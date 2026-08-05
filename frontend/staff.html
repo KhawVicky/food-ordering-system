@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Ordering System | Staff</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="app-page">
+<header class="topbar">
+    <a class="topbar-brand" href="staff.html">
+        <span class="brand-dot" aria-hidden="true">FO</span>
+        <span>Food Ordering System</span>
+    </a>
+    <div class="topbar-actions">
+        <span id="staff-name" class="user-chip"></span>
+        <button id="logout-button" class="button ghost" type="button">Log out</button>
+    </div>
+</header>
+
+<main class="page-shell">
+    <section class="page-heading staff-heading">
+        <div>
+            <p class="eyebrow">Staff dashboard</p>
+            <h1>Keep service moving.</h1>
+            <p class="muted">Review orders, clear payments, and coordinate every delivery from one calm workspace.</p>
+        </div>
+        <div class="heading-actions">
+            <span id="staff-sync" class="sync-note">Ready to sync</span>
+            <button id="refresh-all" class="button secondary" type="button">Refresh all</button>
+        </div>
+    </section>
+
+    <div id="staff-message" class="message" role="status"></div>
+
+    <section class="staff-workspace" aria-label="Fulfilment workspace">
+        <div class="staff-tabs" role="tablist" aria-label="Staff dashboard sections">
+            <button id="tab-orders" class="staff-tab" type="button" role="tab" aria-selected="true" aria-controls="staff-orders-panel" data-tab="orders">
+                <span class="tab-number">01</span>
+                <span class="tab-copy">
+                    <strong>Orders</strong>
+                    <small>Every order, one view</small>
+                </span>
+                <span id="orders-count" class="tab-count">0</span>
+            </button>
+            <button id="tab-payments" class="staff-tab" type="button" role="tab" aria-selected="false" aria-controls="staff-payments-panel" data-tab="payments">
+                <span class="tab-number">02</span>
+                <span class="tab-copy">
+                    <strong>Payments</strong>
+                    <small>Confirm what is paid</small>
+                </span>
+                <span id="payments-count" class="tab-count">0</span>
+            </button>
+            <button id="tab-delivery" class="staff-tab" type="button" role="tab" aria-selected="false" aria-controls="staff-delivery-panel" data-tab="delivery">
+                <span class="tab-number">03</span>
+                <span class="tab-copy">
+                    <strong>Delivery</strong>
+                    <small>Move meals to the door</small>
+                </span>
+                <span id="delivery-count" class="tab-count">0</span>
+            </button>
+        </div>
+
+        <section id="staff-orders-panel" class="panel staff-tab-panel" role="tabpanel" aria-labelledby="tab-orders">
+            <div class="panel-heading panel-heading-row">
+                <div>
+                    <p class="eyebrow">Order service</p>
+                    <h2>All orders</h2>
+                </div>
+                <button id="refresh-orders" class="button ghost" type="button">Refresh</button>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table table-staff-orders">
+                    <colgroup>
+                        <col class="col-order">
+                        <col class="col-customer">
+                        <col class="col-meal">
+                        <col class="col-qty">
+                        <col class="col-total">
+                        <col class="col-order-status">
+                        <col class="col-payment">
+                        <col class="col-created">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Created</th>
+                    </tr>
+                    </thead>
+                    <tbody id="staff-orders-body">
+                    <tr><td colspan="8" class="empty-cell">Loading orders...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="staff-payments-panel" class="panel staff-tab-panel" role="tabpanel" aria-labelledby="tab-payments" hidden>
+            <div class="panel-heading panel-heading-row">
+                <div>
+                    <p class="eyebrow">Payment service</p>
+                    <h2>Payments</h2>
+                </div>
+                <button id="refresh-payments" class="button ghost" type="button">Refresh</button>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table table-payments">
+                    <colgroup>
+                        <col class="col-payment-id">
+                        <col class="col-order">
+                        <col class="col-total">
+                        <col class="col-method">
+                        <col class="col-status">
+                        <col class="col-paid">
+                        <col class="col-action">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>Payment</th>
+                        <th>Order</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th>Paid</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="payments-body">
+                    <tr><td colspan="7" class="empty-cell">Loading payments...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="staff-delivery-panel" class="panel staff-tab-panel" role="tabpanel" aria-labelledby="tab-delivery" hidden>
+            <div class="panel-heading panel-heading-row">
+                <div>
+                    <p class="eyebrow">Delivery service</p>
+                    <h2>Delivery tasks</h2>
+                </div>
+                <button id="refresh-deliveries" class="button ghost" type="button">Refresh</button>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table table-deliveries">
+                    <colgroup>
+                        <col class="col-delivery-id">
+                        <col class="col-order">
+                        <col class="col-address">
+                        <col class="col-rider">
+                        <col class="col-status">
+                        <col class="col-action">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>Delivery</th>
+                        <th>Order</th>
+                        <th>Address</th>
+                        <th>Rider</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="deliveries-body">
+                    <tr><td colspan="6" class="empty-cell">Loading deliveries...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </section>
+</main>
+<script src="js/auth.js"></script>
+<script src="js/staff.js"></script>
+</body>
+</html>

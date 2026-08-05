@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Ordering System | Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+<main class="auth-shell">
+    <section class="auth-card" aria-labelledby="page-title">
+        <div class="brand-mark" aria-hidden="true">FO</div>
+        <p class="eyebrow">Simple ordering, clear tracking</p>
+        <h1 id="page-title">Food, sorted.</h1>
+        <p class="muted">Sign in to choose from today's menu or manage the fulfilment workflow.</p>
+
+        <form id="login-form" class="stack-form">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="username" required placeholder="you@example.com">
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password">
+
+            <button class="button primary" type="submit">Sign in</button>
+            <p id="login-message" class="message" role="alert"></p>
+        </form>
+
+        <div class="demo-box">
+            <p class="eyebrow">Demo accounts</p>
+            <p><strong>Customer:</strong> customer@test.com / customer123</p>
+            <p><strong>Staff:</strong> staff@test.com / staff123</p>
+        </div>
+    </section>
+</main>
+<script src="js/auth.js"></script>
+</body>
+</html>

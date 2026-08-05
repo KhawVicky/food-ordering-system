@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Ordering System | Customer</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="app-page">
+<header class="topbar">
+    <a class="topbar-brand" href="customer.html">
+        <span class="brand-dot" aria-hidden="true">FO</span>
+        <span>Food Ordering System</span>
+    </a>
+    <div class="topbar-actions">
+        <span id="customer-name" class="user-chip"></span>
+        <button id="logout-button" class="button ghost" type="button">Log out</button>
+    </div>
+</header>
+
+<main class="page-shell">
+    <section class="page-heading customer-heading">
+        <div>
+            <p class="eyebrow">Customer dashboard</p>
+            <h1>Choose your meal.</h1>
+            <p class="muted">Pick your favourites, set the quantities, and checkout in a few clicks.</p>
+        </div>
+        <div class="heading-note">
+            <span class="heading-note__dot" aria-hidden="true"></span>
+            <span>Freshly prepared today</span>
+        </div>
+    </section>
+
+    <div id="customer-message" class="message" role="status"></div>
+
+    <section class="customer-workspace" aria-label="Customer workspace">
+        <div id="customer-tabs" class="staff-tabs customer-tabs" role="tablist" aria-label="Customer dashboard sections">
+            <button id="customer-tab-order" class="staff-tab" type="button" role="tab" aria-selected="true" aria-controls="customer-order-panel" data-customer-tab="order">
+                <span class="tab-number">01</span>
+                <span class="tab-copy">
+                    <strong>Order</strong>
+                    <small>Browse today's menu</small>
+                </span>
+            </button>
+            <button id="customer-tab-history" class="staff-tab" type="button" role="tab" aria-selected="false" aria-controls="customer-history-panel" data-customer-tab="history">
+                <span class="tab-number">02</span>
+                <span class="tab-copy">
+                    <strong>Recent orders</strong>
+                    <small>Track what you have ordered</small>
+                </span>
+                <span id="customer-orders-count" class="tab-count">0</span>
+            </button>
+        </div>
+
+        <div class="customer-tab-panels">
+            <section id="customer-order-panel" class="customer-tab-panel" role="tabpanel" aria-labelledby="customer-tab-order">
+                <section class="customer-order-layout">
+                    <section class="panel menu-panel" aria-labelledby="menu-heading">
+                        <div class="panel-heading panel-heading-row">
+                            <div>
+                                <p class="eyebrow">Today's menu</p>
+                                <h2 id="menu-heading">Made for a good day</h2>
+                            </div>
+                            <span class="panel-meta">Select multiple</span>
+                        </div>
+                        <div id="menu-grid" class="menu-grid" aria-live="polite"></div>
+                    </section>
+
+                    <aside class="panel checkout-panel" aria-labelledby="checkout-heading">
+                        <div class="panel-heading">
+                            <p class="eyebrow">Checkout</p>
+                            <h2 id="checkout-heading">Your order</h2>
+                        </div>
+
+                        <div id="checkout-empty" class="checkout-empty">
+                            <span class="checkout-empty__mark" aria-hidden="true">+</span>
+                            <p>Add one or more menu items to start your order.</p>
+                        </div>
+
+                        <div id="checkout-selected" class="checkout-selected" hidden>
+                            <div class="checkout-cart-heading">
+                                <div>
+                                    <span class="field-caption">Selected items</span>
+                                    <strong id="cart-count">0 items</strong>
+                                </div>
+                                <span class="checkout-cart-note">Ready to checkout</span>
+                            </div>
+                            <div id="checkout-items" class="checkout-items" aria-live="polite"></div>
+                            <div class="checkout-total-row">
+                                <span>Order total</span>
+                                <strong id="order-total">RM 0.00</strong>
+                            </div>
+                        </div>
+
+                        <form id="checkout-form" class="checkout-form">
+                            <div class="form-field">
+                                <label for="payment-method">Payment method</label>
+                                <select id="payment-method" name="paymentMethod" required>
+                                    <option value="CASH">Cash on delivery</option>
+                                    <option value="CARD">Card</option>
+                                    <option value="EWALLET">E-wallet</option>
+                                </select>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="delivery-address">Delivery address</label>
+                                <textarea id="delivery-address" name="deliveryAddress" rows="3" required placeholder="12 Jalan Example, Penang"></textarea>
+                            </div>
+
+                            <button id="checkout-button" class="button primary checkout-button" type="submit" disabled>
+                                <span>Checkout</span>
+                                <span id="checkout-button-total">RM 0.00</span>
+                            </button>
+                        </form>
+                    </aside>
+                </section>
+            </section>
+
+            <section id="customer-history-panel" class="customer-tab-panel" role="tabpanel" aria-labelledby="customer-tab-history" hidden>
+                <section class="panel history-panel" aria-labelledby="history-heading">
+                    <div class="panel-heading panel-heading-row">
+                        <div>
+                            <p class="eyebrow">Live view</p>
+                            <h2 id="history-heading">Recent orders</h2>
+                        </div>
+                        <button id="refresh-orders" class="button ghost" type="button">Refresh</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table table-customer-orders">
+                            <colgroup>
+                                <col class="col-order">
+                                <col class="col-items">
+                                <col class="col-qty">
+                                <col class="col-total">
+                                <col class="col-status">
+                                <col class="col-payment">
+                                <col class="col-delivery">
+                                <col class="col-rider">
+                                <col class="col-created">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>Items</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                                <th>Order status</th>
+                                <th>Payment</th>
+                                <th>Delivery</th>
+                                <th>Rider</th>
+                                <th>Created</th>
+                            </tr>
+                            </thead>
+                            <tbody id="orders-body">
+                            <tr><td colspan="9" class="empty-cell">Loading orders...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </section>
+</main>
+<script src="js/auth.js"></script>
+<script src="js/customer.js"></script>
+</body>
+</html>
