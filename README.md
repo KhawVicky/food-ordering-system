@@ -80,3 +80,24 @@ From the repository root:
 ```powershell
 docker compose down
 ```
+
+## Sample Inputs
+
+### Customer Account
+Email: customer@test.com
+Password: customer123
+
+### Staff Account
+Email: staff@test.com
+Password: staff123
+
+### Sample Customer Registration
+Name: Test Customer
+Email: testcustomer@test.com
+Password: test123
+
+### Sample Order
+Food Item: Chicken Burger
+Quantity: 2
+Payment Method: CASH
+Delivery Address: 10 Jalan Example
