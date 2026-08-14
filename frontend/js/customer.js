@@ -54,6 +54,7 @@ const MENU_ITEMS = [
 const cart = new Map();
 
 if (customer) {
+    // Set up the customer page.
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("customer-name").textContent = customer.name;
         document.getElementById("logout-button").addEventListener("click", logout);
@@ -68,12 +69,14 @@ if (customer) {
     });
 }
 
+// Handle customer tab clicks.
 function handleCustomerTabChange(event) {
     const tab = event.target.closest("[data-customer-tab]");
     if (!tab) return;
     activateCustomerTab(tab.dataset.customerTab);
 }
 
+// Show the selected customer tab.
 function activateCustomerTab(tabName) {
     document.querySelectorAll("[data-customer-tab]").forEach(tab => {
         const isActive = tab.dataset.customerTab === tabName;
@@ -85,23 +88,27 @@ function activateCustomerTab(tabName) {
     });
 }
 
+// Update the order count on the page.
 function updateCustomerOrderCount(count) {
     const countElement = document.getElementById("customer-orders-count");
     if (countElement) countElement.textContent = count;
 }
 
+// Get all items currently in the cart.
 function getCartItems() {
     return MENU_ITEMS
         .filter(item => cart.has(item.id))
         .map(item => ({ item, quantity: cart.get(item.id) }));
 }
 
+// Calculate the cart total.
 function getCartTotal(cartItems) {
     return Number(cartItems
         .reduce((sum, entry) => sum + entry.item.price * entry.quantity, 0)
         .toFixed(2));
 }
 
+// Draw the menu cards.
 function renderMenu() {
     const menuGrid = document.getElementById("menu-grid");
     if (!menuGrid) return;
@@ -143,6 +150,7 @@ function renderMenu() {
     }).join("");
 }
 
+// Add or remove a menu item.
 function handleMenuAction(event) {
     const control = event.target.closest("[data-menu-action]");
     if (!control) return;
@@ -163,6 +171,7 @@ function handleMenuAction(event) {
     renderCheckout();
 }
 
+// Draw the checkout summary.
 function renderCheckout() {
     const emptyState = document.getElementById("checkout-empty");
     const selectedState = document.getElementById("checkout-selected");
@@ -202,6 +211,7 @@ function renderCheckout() {
     document.getElementById("order-total").textContent = formatCurrency(totalAmount);
 }
 
+// Send the customer order.
 async function createOrder(event) {
     event.preventDefault();
     const cartItems = getCartItems();
@@ -246,6 +256,7 @@ async function createOrder(event) {
     }
 }
 
+// Load orders and their latest statuses.
 async function loadCustomerOrders() {
     const body = document.getElementById("orders-body");
     body.innerHTML = '<tr><td colspan="9" class="empty-cell">Loading orders...</td></tr>';
@@ -276,9 +287,9 @@ async function loadCustomerOrders() {
                     <td class="items-cell">${escapeHtml(order.foodItem)}</td>
                     <td>${escapeHtml(order.quantity)}</td>
                     <td><strong>${formatCurrency(order.totalAmount)}</strong></td>
-                    <td><span class="status-pill ${statusClass(order.orderStatus)}">${escapeHtml(order.orderStatus)}</span></td>
-                    <td><span class="status-pill ${statusClass(paymentStatus)}">${escapeHtml(paymentStatus)}</span></td>
-                    <td><span class="status-pill ${statusClass(deliveryStatus)}">${escapeHtml(deliveryStatus)}</span></td>
+                    <td><span class="status-pill ${statusClass(order.orderStatus)}">${escapeHtml(formatDisplayLabel(order.orderStatus))}</span></td>
+                    <td><span class="status-pill ${statusClass(paymentStatus)}">${escapeHtml(formatDisplayLabel(paymentStatus))}</span></td>
+                    <td><span class="status-pill ${statusClass(deliveryStatus)}">${escapeHtml(formatDisplayLabel(deliveryStatus))}</span></td>
                     <td>${escapeHtml(delivery?.riderName || "Not assigned")}</td>
                     <td>${formatDate(order.createdAt)}</td>
                 </tr>

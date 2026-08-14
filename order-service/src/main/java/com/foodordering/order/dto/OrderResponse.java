@@ -20,9 +20,11 @@ public class OrderResponse {
     private OrderStatus orderStatus;
     private LocalDateTime createdAt;
 
+    // Create an empty order response.
     public OrderResponse() {
     }
 
+    // Build a response from an order.
     public static OrderResponse fromEntity(Order order) {
         OrderResponse response = new OrderResponse();
         response.orderId = order.getOrderId();
@@ -39,46 +41,57 @@ public class OrderResponse {
         return response;
     }
 
+    // Get the order ID.
     public Long getOrderId() {
         return orderId;
     }
 
+    // Get the customer ID.
     public Long getCustomerId() {
         return customerId;
     }
 
+    // Get the customer name.
     public String getCustomerName() {
         return customerName;
     }
 
+    // Get the customer email.
     public String getCustomerEmail() {
         return customerEmail;
     }
 
+    // Get the food item.
     public String getFoodItem() {
         return foodItem;
     }
 
+    // Get the quantity.
     public Integer getQuantity() {
         return quantity;
     }
 
+    // Get the total amount.
     public BigDecimal getTotalAmount() {
         return totalAmount;
     }
 
+    // Get the payment method.
     public String getPaymentMethod() {
         return paymentMethod;
     }
 
+    // Get the delivery address.
     public String getDeliveryAddress() {
         return deliveryAddress;
     }
 
+    // Get the order status.
     public OrderStatus getOrderStatus() {
         return orderStatus;
     }
 
+    // Get the creation time.
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }

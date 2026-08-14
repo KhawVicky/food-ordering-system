@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
+    // Find orders for one customer.
     List<Order> findByCustomerIdOrderByCreatedAtDesc(Long customerId);
 
+    // Find all orders from newest to oldest.
     List<Order> findAllByOrderByCreatedAtDesc();
 }

@@ -51,9 +51,11 @@ public class Order {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    // Create an empty order for JPA.
     protected Order() {
     }
 
+    // Create a new pending order.
     public Order(
             Long customerId,
             String customerName,
@@ -75,98 +77,122 @@ public class Order {
         this.createdAt = LocalDateTime.now();
     }
 
+    // Mark the order as paid.
     public void markAsPaid() {
         this.orderStatus = OrderStatus.PAID;
     }
 
+    // Cancel the order.
     public void cancel() {
         this.orderStatus = OrderStatus.CANCELLED;
     }
 
+    // Get the order ID.
     public Long getOrderId() {
         return orderId;
     }
 
+    // Set the order ID.
     public void setOrderId(Long orderId) {
         this.orderId = orderId;
     }
 
+    // Get the customer ID.
     public Long getCustomerId() {
         return customerId;
     }
 
+    // Set the customer ID.
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 
+    // Get the customer name.
     public String getCustomerName() {
         return customerName;
     }
 
+    // Set the customer name.
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
     }
 
+    // Get the customer email.
     public String getCustomerEmail() {
         return customerEmail;
     }
 
+    // Set the customer email.
     public void setCustomerEmail(String customerEmail) {
         this.customerEmail = customerEmail;
     }
 
+    // Get the food item.
     public String getFoodItem() {
         return foodItem;
     }
 
+    // Set the food item.
     public void setFoodItem(String foodItem) {
         this.foodItem = foodItem;
     }
 
+    // Get the quantity.
     public Integer getQuantity() {
         return quantity;
     }
 
+    // Set the quantity.
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
+    // Get the total amount.
     public BigDecimal getTotalAmount() {
         return totalAmount;
     }
 
+    // Set the total amount.
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
     }
 
+    // Get the payment method.
     public String getPaymentMethod() {
         return paymentMethod;
     }
 
+    // Set the payment method.
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
 
+    // Get the delivery address.
     public String getDeliveryAddress() {
         return deliveryAddress;
     }
 
+    // Set the delivery address.
     public void setDeliveryAddress(String deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
     }
 
+    // Get the order status.
     public OrderStatus getOrderStatus() {
         return orderStatus;
     }
 
+    // Set the order status.
     public void setOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
     }
 
+    // Get the creation time.
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
+    // Set the creation time.
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }

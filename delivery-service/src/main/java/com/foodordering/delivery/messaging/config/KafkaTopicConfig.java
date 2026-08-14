@@ -10,6 +10,7 @@ public class KafkaTopicConfig {
 
     public static final String PAYMENT_COMPLETED_TOPIC = "payment-completed-topic";
 
+    // Create the payment topic.
     @Bean
     public NewTopic paymentCompletedTopic() {
         return TopicBuilder.name(PAYMENT_COMPLETED_TOPIC)

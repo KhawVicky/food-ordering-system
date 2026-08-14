@@ -11,6 +11,7 @@ public class KafkaTopicConfig {
     public static final String ORDER_CREATED_TOPIC = "order-created-topic";
     public static final String PAYMENT_COMPLETED_TOPIC = "payment-completed-topic";
 
+    // Create the order topic.
     @Bean
     public NewTopic orderCreatedTopic() {
         return TopicBuilder.name(ORDER_CREATED_TOPIC)
@@ -19,6 +20,7 @@ public class KafkaTopicConfig {
                 .build();
     }
 
+    // Create the payment topic.
     @Bean
     public NewTopic paymentCompletedTopic() {
         return TopicBuilder.name(PAYMENT_COMPLETED_TOPIC)

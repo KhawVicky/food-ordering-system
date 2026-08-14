@@ -36,11 +36,13 @@ class PaymentServiceApplicationTests {
 
     private PaymentService paymentService;
 
+    // Create the service before each test.
     @BeforeEach
     void setUp() {
         paymentService = new PaymentService(paymentRepository, paymentEventProducer);
     }
 
+    // Test that one order creates one payment.
     @Test
     void orderCreatedEventCreatesOnlyOnePayment() {
         OrderCreatedEvent event = orderEvent();
@@ -60,6 +62,7 @@ class PaymentServiceApplicationTests {
         assertEquals(PaymentStatus.PENDING, savedPayment().getPaymentStatus());
     }
 
+    // Test payment completion and event publishing.
     @Test
     void completingPaymentSetsPaidAtAndPublishesEvent() {
         Payment payment = savedPayment();
@@ -75,6 +78,7 @@ class PaymentServiceApplicationTests {
         verify(paymentEventProducer).publish(any(PaymentCompletedEvent.class));
     }
 
+    // Test that a completed payment is not published again.
     @Test
     void completingAnAlreadyCompletedPaymentDoesNotPublishAgain() {
         Payment payment = savedPayment();
@@ -89,6 +93,7 @@ class PaymentServiceApplicationTests {
         verify(paymentEventProducer, never()).publish(any());
     }
 
+    // Test finding a payment by order ID.
     @Test
     void paymentCanBeFoundByOrderId() {
         when(paymentRepository.findByOrderId(11L)).thenReturn(Optional.of(savedPayment()));
@@ -96,6 +101,7 @@ class PaymentServiceApplicationTests {
         assertEquals(11L, paymentService.getPaymentByOrderId(11L).getOrderId());
     }
 
+    // Test the payment list query.
     @Test
     void existingPaymentListEndpointUsesRepository() {
         when(paymentRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(savedPayment()));
@@ -103,6 +109,7 @@ class PaymentServiceApplicationTests {
         assertEquals(1, paymentService.getAllPayments().size());
     }
 
+    // Build a sample order event.
     private OrderCreatedEvent orderEvent() {
         OrderCreatedEvent event = new OrderCreatedEvent();
         event.setOrderId(11L);
@@ -113,6 +120,7 @@ class PaymentServiceApplicationTests {
         return event;
     }
 
+    // Build a sample payment.
     private Payment savedPayment() {
         Payment payment = new Payment(11L, 1L, new BigDecimal("20.00"), "CASH", "Penang");
         payment.setPaymentId("payment-11");

@@ -22,11 +22,13 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderEventProducer orderEventProducer;
 
+    // Create the order service.
     public OrderService(OrderRepository orderRepository, OrderEventProducer orderEventProducer) {
         this.orderRepository = orderRepository;
         this.orderEventProducer = orderEventProducer;
     }
 
+    // Save an order and publish its event.
     @Transactional
     public OrderResponse createOrder(OrderCreateRequest request) {
         Order order = new Order(
@@ -45,6 +47,7 @@ public class OrderService {
         return OrderResponse.fromEntity(savedOrder);
     }
 
+    // Get all orders from newest to oldest.
     @Transactional(readOnly = true)
     public List<OrderResponse> getAllOrders() {
         return orderRepository.findAllByOrderByCreatedAtDesc()
@@ -53,11 +56,13 @@ public class OrderService {
                 .toList();
     }
 
+    // Get one order by ID.
     @Transactional(readOnly = true)
     public OrderResponse getOrderById(Long orderId) {
         return OrderResponse.fromEntity(findOrder(orderId));
     }
 
+    // Get orders for one customer.
     @Transactional(readOnly = true)
     public List<OrderResponse> getOrdersByCustomer(Long customerId) {
         return orderRepository.findByCustomerIdOrderByCreatedAtDesc(customerId)
@@ -66,6 +71,7 @@ public class OrderService {
                 .toList();
     }
 
+    // Update an order status.
     @Transactional
     public OrderResponse updateOrderStatus(Long orderId, OrderStatusUpdateRequest request) {
         Order order = findOrder(orderId);
@@ -89,6 +95,7 @@ public class OrderService {
         return OrderResponse.fromEntity(orderRepository.save(order));
     }
 
+    // Mark an order as paid after payment is complete.
     @Transactional
     public void handlePaymentCompleted(PaymentCompletedEvent event) {
         if (event == null || !event.isCompleted() || event.getOrderId() == null) {
@@ -102,11 +109,13 @@ public class OrderService {
         }
     }
 
+    // Find an order or report an error.
     private Order findOrder(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
     }
 
+    // Build the Kafka event for an order.
     private OrderCreatedEvent toOrderCreatedEvent(Order order) {
         return new OrderCreatedEvent(
                 order.getOrderId(),

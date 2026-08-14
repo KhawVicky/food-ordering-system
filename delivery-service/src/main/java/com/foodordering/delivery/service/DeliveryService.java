@@ -21,11 +21,13 @@ public class DeliveryService {
 
     private final DeliveryRepository deliveryRepository;
 
+    // Create the delivery service.
     public DeliveryService(DeliveryRepository deliveryRepository) {
         this.deliveryRepository = deliveryRepository;
     }
 
     @Transactional
+    // Create a delivery task from a completed payment.
     public DeliveryResponse createDelivery(PaymentCompletedEvent event) {
         validatePaymentEvent(event);
 
@@ -51,6 +53,7 @@ public class DeliveryService {
         }
     }
 
+    // Get all deliveries from newest to oldest.
     @Transactional(readOnly = true)
     public List<DeliveryResponse> getAllDeliveries() {
         return deliveryRepository.findAllByOrderByCreatedAtDesc()
@@ -59,11 +62,13 @@ public class DeliveryService {
                 .toList();
     }
 
+    // Get one delivery by ID.
     @Transactional(readOnly = true)
     public DeliveryResponse getDeliveryById(String deliveryId) {
         return DeliveryResponse.fromEntity(findDelivery(deliveryId));
     }
 
+    // Get a delivery by order ID.
     @Transactional(readOnly = true)
     public DeliveryResponse getDeliveryByOrderId(Long orderId) {
         return DeliveryResponse.fromEntity(deliveryRepository.findByOrderId(orderId)
@@ -72,6 +77,7 @@ public class DeliveryService {
     }
 
     @Transactional
+    // Assign a rider to a delivery.
     public DeliveryResponse assignRider(String deliveryId, RiderAssignmentRequest request) {
         Delivery delivery = findDelivery(deliveryId);
         if (request == null || request.getRiderName() == null || request.getRiderName().isBlank()) {
@@ -91,6 +97,7 @@ public class DeliveryService {
     }
 
     @Transactional
+    // Update the delivery status.
     public DeliveryResponse updateDeliveryStatus(
             String deliveryId,
             DeliveryStatusUpdateRequest request) {
@@ -131,11 +138,13 @@ public class DeliveryService {
         return DeliveryResponse.fromEntity(deliveryRepository.save(delivery));
     }
 
+    // Find a delivery or report an error.
     private Delivery findDelivery(String deliveryId) {
         return deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new DeliveryNotFoundException("Delivery not found: " + deliveryId));
     }
 
+    // Check the payment event data.
     private void validatePaymentEvent(PaymentCompletedEvent event) {
         if (event == null || !event.isCompleted()) {
             throw new IllegalArgumentException("Only completed payments create delivery tasks");
@@ -151,6 +160,7 @@ public class DeliveryService {
         }
     }
 
+    // Build a status change error.
     private InvalidStatusTransitionException invalidTransition(
             Delivery delivery,
             DeliveryStatus requestedStatus) {

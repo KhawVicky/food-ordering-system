@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Ordering System | Login</title>
+    <title>Food Ordering System | Account</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="auth-page">
@@ -12,7 +12,7 @@
         <div class="brand-mark" aria-hidden="true">FO</div>
         <p class="eyebrow">Simple ordering, clear tracking</p>
         <h1 id="page-title">Food, sorted.</h1>
-        <p class="muted">Sign in to choose from today's menu or manage the fulfilment workflow.</p>
+        <p id="auth-copy" class="muted">Sign in to choose from today's menu or manage the fulfilment workflow.</p>
 
         <form id="login-form" class="stack-form">
             <label for="email">Email</label>
@@ -23,9 +23,26 @@
 
             <button class="button primary" type="submit">Sign in</button>
             <p id="login-message" class="message" role="alert"></p>
+            <p class="auth-prompt">New to the table? <button id="show-register" class="text-button" type="button">Create an account</button></p>
         </form>
 
-        <div class="demo-box">
+        <form id="register-form" class="stack-form" hidden>
+            <label for="register-name">Full name</label>
+            <input id="register-name" name="name" type="text" autocomplete="name" required maxlength="100" placeholder="Your name">
+
+            <label for="register-email">Email</label>
+            <input id="register-email" name="email" type="email" autocomplete="email" required maxlength="255" placeholder="you@example.com">
+
+            <label for="register-password">Password</label>
+            <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="100" required placeholder="At least 8 characters">
+            <p class="form-hint">New accounts are created as Customer accounts.</p>
+
+            <button id="register-submit" class="button primary" type="submit">Create account</button>
+            <p id="register-message" class="message" role="alert"></p>
+            <p class="auth-prompt">Already have an account? <button id="show-login" class="text-button" type="button">Sign in</button></p>
+        </form>
+
+        <div id="demo-box" class="demo-box">
             <p class="eyebrow">Demo accounts</p>
             <p><strong>Customer:</strong> customer@test.com / customer123</p>
             <p><strong>Staff:</strong> staff@test.com / staff123</p>

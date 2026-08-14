@@ -11,10 +11,12 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class OrderServiceApplication {
 
+    // Start the order service.
     public static void main(String[] args) {
         SpringApplication.run(OrderServiceApplication.class, args);
     }
 
+    // Seed demo customer and staff accounts.
     @Bean
     CommandLineRunner seedDemoUsers(UserRepository userRepository) {
         return args -> {

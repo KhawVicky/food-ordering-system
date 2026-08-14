@@ -2,6 +2,8 @@ package com.foodordering.order;
 
 import com.foodordering.order.dto.LoginRequest;
 import com.foodordering.order.dto.OrderCreateRequest;
+import com.foodordering.order.dto.RegisterRequest;
+import com.foodordering.order.exception.DuplicateEmailException;
 import com.foodordering.order.exception.InvalidLoginException;
 import com.foodordering.order.messaging.event.PaymentCompletedEvent;
 import com.foodordering.order.messaging.producer.OrderEventProducer;
@@ -45,12 +47,14 @@ class OrderServiceUnitTest {
     private AuthService authService;
     private OrderService orderService;
 
+    // Create fresh services before each test.
     @BeforeEach
     void setUp() {
         authService = new AuthService(userRepository);
         orderService = new OrderService(orderRepository, orderEventProducer);
     }
 
+    // Test a successful customer login.
     @Test
     void successfulLoginReturnsCustomerDetails() {
         User user = new User("Demo Customer", "customer@test.com", "customer123", UserRole.CUSTOMER);
@@ -61,6 +65,7 @@ class OrderServiceUnitTest {
                 authService.login(new LoginRequest("customer@test.com", "customer123")).getRole());
     }
 
+    // Test that a bad login is rejected.
     @Test
     void failedLoginIsRejected() {
         when(userRepository.findByEmailIgnoreCase("customer@test.com")).thenReturn(Optional.empty());
@@ -69,6 +74,38 @@ class OrderServiceUnitTest {
                 () -> authService.login(new LoginRequest("customer@test.com", "wrong")));
     }
 
+    // Test customer registration and email cleanup.
+    @Test
+    void registrationCreatesCustomerWithNormalizedEmail() {
+        when(userRepository.existsByEmailIgnoreCase("new.customer@example.com")).thenReturn(false);
+        when(userRepository.saveAndFlush(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setUserId(12L);
+            return user;
+        });
+
+        var response = authService.register(new RegisterRequest(
+                " New Customer ", "New.Customer@Example.com", "password123"));
+
+        assertEquals(12L, response.getUserId());
+        assertEquals("New Customer", response.getName());
+        assertEquals("new.customer@example.com", response.getEmail());
+        assertEquals(UserRole.CUSTOMER, response.getRole());
+        verify(userRepository).saveAndFlush(any(User.class));
+    }
+
+    // Test that a used email is rejected.
+    @Test
+    void registrationRejectsExistingEmail() {
+        when(userRepository.existsByEmailIgnoreCase("customer@test.com")).thenReturn(true);
+
+        assertThrows(DuplicateEmailException.class,
+                () -> authService.register(new RegisterRequest(
+                        "Another Customer", "CUSTOMER@test.com", "password123")));
+        verify(userRepository, never()).saveAndFlush(any(User.class));
+    }
+
+    // Test order creation and event publishing.
     @Test
     void createOrderStartsPendingAndPublishesEvent() {
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
@@ -91,6 +128,7 @@ class OrderServiceUnitTest {
         verify(orderEventProducer).publish(any());
     }
 
+    // Test customer order filtering.
     @Test
     void customerOrdersAreFilteredByCustomerId() {
         Order order = new Order(1L, "Demo Customer", "customer@test.com", "Noodles", 1,
@@ -101,6 +139,7 @@ class OrderServiceUnitTest {
         verify(orderRepository).findByCustomerIdOrderByCreatedAtDesc(1L);
     }
 
+    // Test payment events and duplicate safety.
     @Test
     void paymentCompletedEventMarksOrderPaidAndDuplicateIsSafe() {
         Order order = new Order(1L, "Demo Customer", "customer@test.com", "Noodles", 1,

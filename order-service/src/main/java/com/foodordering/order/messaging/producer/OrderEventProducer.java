@@ -10,10 +10,12 @@ public class OrderEventProducer {
 
     private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
 
+    // Create the order event producer.
     public OrderEventProducer(KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
+    // Send a new order event to Kafka.
     public void publish(OrderCreatedEvent event) {
         kafkaTemplate.send(
                 KafkaTopicConfig.ORDER_CREATED_TOPIC,

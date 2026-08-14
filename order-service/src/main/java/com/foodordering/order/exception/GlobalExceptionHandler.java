@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // Handle validation errors.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(
             MethodArgumentNotValidException exception,
@@ -24,6 +25,7 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, message, request);
     }
 
+    // Handle invalid JSON.
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleMalformedJson(
             HttpMessageNotReadableException exception,
@@ -32,6 +34,7 @@ public class GlobalExceptionHandler {
                 "Request body is invalid. Check the JSON format and status values.", request);
     }
 
+    // Handle failed login attempts.
     @ExceptionHandler(InvalidLoginException.class)
     public ResponseEntity<ErrorResponse> handleInvalidLogin(
             InvalidLoginException exception,
@@ -39,6 +42,15 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.UNAUTHORIZED, exception.getMessage(), request);
     }
 
+    // Handle duplicate email errors.
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateEmail(
+            DuplicateEmailException exception,
+            HttpServletRequest request) {
+        return error(HttpStatus.CONFLICT, exception.getMessage(), request);
+    }
+
+    // Handle missing orders.
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleOrderNotFound(
             OrderNotFoundException exception,
@@ -46,6 +58,7 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.NOT_FOUND, exception.getMessage(), request);
     }
 
+    // Handle invalid status changes.
     @ExceptionHandler(InvalidStatusTransitionException.class)
     public ResponseEntity<ErrorResponse> handleInvalidTransition(
             InvalidStatusTransitionException exception,
@@ -53,6 +66,7 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.CONFLICT, exception.getMessage(), request);
     }
 
+    // Handle unexpected errors.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(
             Exception exception,
@@ -61,6 +75,7 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred.", request);
     }
 
+    // Build a standard error response.
     private ResponseEntity<ErrorResponse> error(
             HttpStatus status,
             String message,

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // Handle validation errors.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(
             MethodArgumentNotValidException exception,
@@ -24,6 +25,7 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, message, request);
     }
 
+    // Handle invalid JSON.
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleMalformedJson(
             HttpMessageNotReadableException exception,
@@ -32,6 +34,7 @@ public class GlobalExceptionHandler {
                 "Request body is invalid. Check the JSON format and status values.", request);
     }
 
+    // Handle missing deliveries.
     @ExceptionHandler(DeliveryNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDeliveryNotFound(
             DeliveryNotFoundException exception,
@@ -39,6 +42,7 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.NOT_FOUND, exception.getMessage(), request);
     }
 
+    // Handle duplicate deliveries.
     @ExceptionHandler(DuplicateDeliveryException.class)
     public ResponseEntity<ErrorResponse> handleDuplicate(
             DuplicateDeliveryException exception,
@@ -46,6 +50,7 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.CONFLICT, exception.getMessage(), request);
     }
 
+    // Handle invalid status changes.
     @ExceptionHandler(InvalidStatusTransitionException.class)
     public ResponseEntity<ErrorResponse> handleInvalidTransition(
             InvalidStatusTransitionException exception,
@@ -53,6 +58,7 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.CONFLICT, exception.getMessage(), request);
     }
 
+    // Handle invalid input.
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleInvalidInput(
             IllegalArgumentException exception,
@@ -60,6 +66,7 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
     }
 
+    // Handle unexpected errors.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(
             Exception exception,
@@ -68,6 +75,7 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred.", request);
     }
 
+    // Build a standard error response.
     private ResponseEntity<ErrorResponse> error(
             HttpStatus status,
             String message,

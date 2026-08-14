@@ -1,13 +1,14 @@
 const staff = requireRole("STAFF");
 
 if (staff) {
+    // Set up the staff page.
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("staff-name").textContent = staff.name;
         document.getElementById("logout-button").addEventListener("click", logout);
         document.getElementById("refresh-all").addEventListener("click", loadAll);
         document.getElementById("refresh-orders").addEventListener("click", loadOrders);
         document.getElementById("refresh-payments").addEventListener("click", loadPayments);
-        document.getElementById("refresh-deliveries").addEventListener("click", loadDeliveries);
+        document.getElementById("refresh-deliveries").addEventListener("click", refreshDeliveryViews);
         document.querySelector(".staff-tabs").addEventListener("click", handleTabChange);
         document.getElementById("payments-body").addEventListener("click", handlePaymentAction);
         document.getElementById("deliveries-body").addEventListener("click", handleDeliveryAction);
@@ -15,12 +16,14 @@ if (staff) {
     });
 }
 
+// Handle staff tab clicks.
 function handleTabChange(event) {
     const tab = event.target.closest("[data-tab]");
     if (!tab) return;
     activateTab(tab.dataset.tab);
 }
 
+// Show the selected staff tab.
 function activateTab(tabName) {
     document.querySelectorAll(".staff-tab").forEach(tab => {
         const isActive = tab.dataset.tab === tabName;
@@ -32,45 +35,52 @@ function activateTab(tabName) {
     });
 }
 
+// Load all staff data.
 async function loadAll() {
     setSyncNote("Refreshing...");
     await Promise.all([loadOrders(), loadPayments(), loadDeliveries()]);
     setSyncNote(`Updated ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`);
 }
 
+// Show the last refresh message.
 function setSyncNote(message) {
     const element = document.getElementById("staff-sync");
     if (element) element.textContent = message;
 }
 
+// Update a tab count.
 function updateTabCount(tabName, count) {
     const countElement = document.getElementById(`${tabName}-count`);
     if (countElement) countElement.textContent = count;
 }
 
+// Check if a payment cannot change.
 function isPaymentLocked(status) {
     return status === "COMPLETED" || status === "FAILED";
 }
 
+// Draw the payment status control.
 function renderPaymentStatus(payment) {
     const status = payment.paymentStatus || "PENDING";
     if (isPaymentLocked(status)) {
-        return `<span class="status-pill ${statusClass(status)}">${escapeHtml(status)}</span>`;
+        return `<span class="status-pill ${statusClass(status)}">${escapeHtml(formatDisplayLabel(status))}</span>`;
     }
 
     return `
         <select class="table-select" data-payment-status="${escapeHtml(payment.paymentId)}" aria-label="Payment status">
-            ${["PENDING", "COMPLETED", "FAILED"].map(option => `<option value="${option}" ${option === status ? "selected" : ""}>${option}</option>`).join("")}
+            ${["PENDING", "COMPLETED", "FAILED"].map(option => `<option value="${option}" ${option === status ? "selected" : ""}>${formatDisplayLabel(option)}</option>`).join("")}
         </select>
     `;
 }
 
+// Draw the payment action button.
 function renderPaymentAction(payment) {
     return isPaymentLocked(payment.paymentStatus)
         ? '<span class="table-lock">Locked</span>'
         : `<button class="button small" data-payment-action="${escapeHtml(payment.paymentId)}" type="button">Save</button>`;
 }
 
+// Draw the rider assignment control.
 function renderRiderControl(delivery) {
     const status = delivery.deliveryStatus || "PENDING_ASSIGNMENT";
     const riderName = delivery.riderName || "Not assigned";
@@ -86,35 +96,52 @@ function renderRiderControl(delivery) {
     `;
 }
 
+// Draw the delivery status control.
 function renderDeliveryStatus(delivery) {
     const status = delivery.deliveryStatus || "PENDING_ASSIGNMENT";
     if (status === "DELIVERED") {
-        return `<span class="status-pill ${statusClass(status)}">${escapeHtml(status)}</span>`;
+        return `<span class="status-pill ${statusClass(status)}">${escapeHtml(formatDisplayLabel(status))}</span>`;
     }
 
     return `
         <select class="table-select" data-delivery-status="${escapeHtml(delivery.deliveryId)}" aria-label="Delivery status">
-            ${["PENDING_ASSIGNMENT", "RIDER_ASSIGNED", "PICKED_UP", "DELIVERED"].map(option => `<option value="${option}" ${option === status ? "selected" : ""}>${option}</option>`).join("")}
+            ${["PENDING_ASSIGNMENT", "RIDER_ASSIGNED", "PICKED_UP", "DELIVERED"].map(option => `<option value="${option}" ${option === status ? "selected" : ""}>${formatDisplayLabel(option)}</option>`).join("")}
         </select>
     `;
 }
 
+// Draw the delivery action button.
 function renderDeliveryAction(delivery) {
     return delivery.deliveryStatus === "DELIVERED"
         ? '<span class="table-lock">Locked</span>'
         : `<button class="button small" data-delivery-action="${escapeHtml(delivery.deliveryId)}" type="button">Save status</button>`;
 }
 
+// Choose the latest order progress for the staff order table.
+function getOrderProgressStatus(order, payment, delivery) {
+    if (delivery?.deliveryStatus) return delivery.deliveryStatus;
+    if (payment?.paymentStatus === "FAILED") return "FAILED";
+    return order.orderStatus;
+}
+
+// Refresh both delivery progress and the order summary.
+async function refreshDeliveryViews() {
+    await Promise.all([loadDeliveries(), loadOrders()]);
+}
+
+// Load all orders for staff.
 async function loadOrders() {
     const body = document.getElementById("staff-orders-body");
     body.innerHTML = '<tr><td colspan="8" class="empty-cell">Loading orders...</td></tr>';
 
     try {
-        const [orders, payments] = await Promise.all([
+        const [orders, payments, deliveries] = await Promise.all([
             requestJson(`${ORDER_SERVICE_URL}/api/orders`),
-            requestJson(`${PAYMENT_SERVICE_URL}/api/payments`).catch(() => [])
+            requestJson(`${PAYMENT_SERVICE_URL}/api/payments`).catch(() => []),
+            requestJson(`${DELIVERY_SERVICE_URL}/api/deliveries`).catch(() => [])
         ]);
         const paymentsByOrder = new Map(payments.map(payment => [String(payment.orderId), payment]));
+        const deliveriesByOrder = new Map(deliveries.map(delivery => [String(delivery.orderId), delivery]));
         updateTabCount("orders", orders.length);
         body.innerHTML = orders.length ? orders.map(order => `
             <tr>
@@ -123,7 +150,11 @@ async function loadOrders() {
                 <td class="items-cell">${escapeHtml(order.foodItem)}</td>
                 <td>${escapeHtml(order.quantity)}</td>
                 <td><strong>${formatCurrency(order.totalAmount)}</strong></td>
-                <td><span class="status-pill ${statusClass(order.orderStatus)}">${escapeHtml(order.orderStatus)}</span></td>
+                <td>${renderOrderProgressStatus(
+                    order,
+                    paymentsByOrder.get(String(order.orderId)),
+                    deliveriesByOrder.get(String(order.orderId))
+                )}</td>
                 <td>${renderOrderPaymentStatus(paymentsByOrder.get(String(order.orderId)))}</td>
                 <td>${formatDate(order.createdAt)}</td>
             </tr>
@@ -136,11 +167,19 @@ async function loadOrders() {
     }
 }
 
-function renderOrderPaymentStatus(payment) {
-    const status = payment?.paymentStatus || "WAITING";
-    return `<span class="status-pill ${statusClass(status)}">${escapeHtml(status)}</span>`;
+// Draw the latest order or delivery status.
+function renderOrderProgressStatus(order, payment, delivery) {
+    const status = getOrderProgressStatus(order, payment, delivery);
+    return `<span class="status-pill ${statusClass(status)}">${escapeHtml(formatDisplayLabel(status))}</span>`;
 }
 
+// Draw the payment status for an order.
+function renderOrderPaymentStatus(payment) {
+    const status = payment?.paymentStatus || "WAITING";
+    return `<span class="status-pill ${statusClass(status)}">${escapeHtml(formatDisplayLabel(status))}</span>`;
+}
+
+// Load all payments for staff.
 async function loadPayments() {
     const body = document.getElementById("payments-body");
     body.innerHTML = '<tr><td colspan="7" class="empty-cell">Loading payments...</td></tr>';
@@ -167,6 +206,7 @@ async function loadPayments() {
     }
 }
 
+// Load all deliveries for staff.
 async function loadDeliveries() {
     const body = document.getElementById("deliveries-body");
     body.innerHTML = '<tr><td colspan="6" class="empty-cell">Loading deliveries...</td></tr>';
@@ -192,6 +232,7 @@ async function loadDeliveries() {
     }
 }
 
+// Save a payment status change.
 async function handlePaymentAction(event) {
     const button = event.target.closest("[data-payment-action]");
     if (!button) return;
@@ -212,6 +253,7 @@ async function handlePaymentAction(event) {
     }
 }
 
+// Save a rider or delivery status change.
 async function handleDeliveryAction(event) {
     const riderButton = event.target.closest("[data-rider-action]");
     const statusButton = event.target.closest("[data-delivery-action]");
@@ -237,7 +279,7 @@ async function handleDeliveryAction(event) {
             });
             showMessage("staff-message", "Delivery updated.", "success");
         }
-        await loadDeliveries();
+        await refreshDeliveryViews();
     } catch (error) {
         showMessage("staff-message", error.message, "error");
     }

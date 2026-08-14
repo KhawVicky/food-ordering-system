@@ -24,6 +24,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentEventProducer paymentEventProducer;
 
+    // Create the payment service.
     public PaymentService(
             PaymentRepository paymentRepository,
             PaymentEventProducer paymentEventProducer) {
@@ -35,6 +36,7 @@ public class PaymentService {
      * Kept for compatibility with the original manual testing endpoint.
      * Normal payment creation is driven by OrderCreatedEvent consumption.
      */
+    // Create a payment from an order event.
     @Transactional
     public PaymentResponse createPayment(OrderCreatedEvent event) {
         validateOrderEvent(event);
@@ -63,6 +65,7 @@ public class PaymentService {
         }
     }
 
+    // Get all payments from newest to oldest.
     @Transactional(readOnly = true)
     public List<PaymentResponse> getAllPayments() {
         return paymentRepository.findAllByOrderByCreatedAtDesc()
@@ -71,11 +74,13 @@ public class PaymentService {
                 .toList();
     }
 
+    // Get one payment by ID.
     @Transactional(readOnly = true)
     public PaymentResponse getPaymentById(String paymentId) {
         return PaymentResponse.fromEntity(findPayment(paymentId));
     }
 
+    // Get a payment by order ID.
     @Transactional(readOnly = true)
     public PaymentResponse getPaymentByOrderId(Long orderId) {
         return PaymentResponse.fromEntity(paymentRepository.findByOrderId(orderId)
@@ -83,6 +88,7 @@ public class PaymentService {
                         "Payment not found for order: " + orderId)));
     }
 
+    // Update the payment status.
     @Transactional
     public PaymentResponse updatePaymentStatus(
             String paymentId,
@@ -120,11 +126,13 @@ public class PaymentService {
                 "Cannot change payment status from " + currentStatus + " to " + requestedStatus);
     }
 
+    // Find a payment or report an error.
     private Payment findPayment(String paymentId) {
         return paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException("Payment not found: " + paymentId));
     }
 
+    // Check the order event data.
     private void validateOrderEvent(OrderCreatedEvent event) {
         if (event == null || event.getOrderId() == null) {
             throw new IllegalArgumentException("Order ID is required");
@@ -138,6 +146,7 @@ public class PaymentService {
         }
     }
 
+    // Build the payment completed event.
     private PaymentCompletedEvent toPaymentCompletedEvent(Payment payment) {
         return new PaymentCompletedEvent(
                 payment.getPaymentId(),

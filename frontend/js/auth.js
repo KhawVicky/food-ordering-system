@@ -3,6 +3,7 @@ const PAYMENT_SERVICE_URL = "http://localhost:8082";
 const DELIVERY_SERVICE_URL = "http://localhost:8083";
 const SESSION_KEY = "foodOrderingUser";
 
+// Read the current user from the session.
 function getCurrentUser() {
     try {
         return JSON.parse(sessionStorage.getItem(SESSION_KEY) || "null");
@@ -12,15 +13,18 @@ function getCurrentUser() {
     }
 }
 
+// Save the current user in the session.
 function setCurrentUser(user) {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
 }
 
+// Clear the session and go to login.
 function logout() {
     sessionStorage.clear();
     window.location.replace("index.html");
 }
 
+// Check if the user has the needed role.
 function requireRole(role) {
     const user = getCurrentUser();
     if (!user) {
@@ -34,6 +38,7 @@ function requireRole(role) {
     return user;
 }
 
+// Send a JSON request and read the result.
 async function requestJson(url, options = {}) {
     const response = await fetch(url, {
         ...options,
@@ -55,6 +60,7 @@ async function requestJson(url, options = {}) {
     return body;
 }
 
+// Read JSON when the resource may be missing.
 async function optionalJson(url) {
     const response = await fetch(url);
     if (response.status === 404) {
@@ -73,6 +79,7 @@ async function optionalJson(url) {
     return body;
 }
 
+// Show a message on the page.
 function showMessage(elementId, message, type = "") {
     const element = document.getElementById(elementId);
     if (!element) return;
@@ -80,6 +87,7 @@ function showMessage(elementId, message, type = "") {
     element.className = `message ${type}`.trim();
 }
 
+// Make text safe for HTML.
 function escapeHtml(value) {
     return String(value ?? "")
         .replaceAll("&", "&amp;")
@@ -89,29 +97,61 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
+// Format a date for display.
 function formatDate(value) {
     if (!value) return "—";
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? escapeHtml(value) : date.toLocaleString();
 }
 
+// Format a number with two decimals.
 function formatAmount(value) {
     const amount = Number(value);
     return Number.isFinite(amount) ? amount.toFixed(2) : "—";
 }
 
+// Format an amount as Malaysian Ringgit.
 function formatCurrency(value) {
     const amount = Number(value);
     return Number.isFinite(amount) ? `RM ${amount.toFixed(2)}` : "RM --";
 }
 
+// Build a CSS class from a status.
 function statusClass(value) {
     return `status-${String(value || "unknown").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 }
 
+// Format a system value for display.
+function formatDisplayLabel(value) {
+    return String(value ?? "")
+        .toLowerCase()
+        .replace(/[_-]+/g, " ")
+        .replace(/\b\w/g, letter => letter.toUpperCase());
+}
+
+// Set up the authentication page.
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("login-form");
-    if (!loginForm) return;
+    const registerForm = document.getElementById("register-form");
+    if (!loginForm || !registerForm) return;
+
+    const authCopy = document.getElementById("auth-copy");
+    const demoBox = document.getElementById("demo-box");
+    const registerSubmit = document.getElementById("register-submit");
+
+    // Switch between login and register forms.
+    function setAuthMode(mode) {
+        const isRegister = mode === "register";
+        loginForm.hidden = isRegister;
+        registerForm.hidden = !isRegister;
+        demoBox.hidden = isRegister;
+        authCopy.textContent = isRegister
+            ? "Create a customer account and start ordering in a few seconds."
+            : "Sign in to choose from today's menu or manage the fulfilment workflow.";
+        document.getElementById("page-title").textContent = isRegister ? "Join the table." : "Food, sorted.";
+        showMessage("login-message", "");
+        showMessage("register-message", "");
+    }
 
     const existingUser = getCurrentUser();
     if (existingUser) {
@@ -119,6 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    // Send login details when the form is submitted.
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         showMessage("login-message", "Signing in…");
@@ -137,4 +178,32 @@ document.addEventListener("DOMContentLoaded", () => {
             showMessage("login-message", error.message, "error");
         }
     });
+
+    // Send register details when the form is submitted.
+    registerForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        showMessage("register-message", "Creating your account...");
+        registerSubmit.disabled = true;
+        const formData = new FormData(registerForm);
+        try {
+            const user = await requestJson(`${ORDER_SERVICE_URL}/api/auth/register`, {
+                method: "POST",
+                body: JSON.stringify({
+                    name: formData.get("name"),
+                    email: formData.get("email"),
+                    password: formData.get("password")
+                })
+            });
+            setCurrentUser(user);
+            window.location.href = "customer.html";
+        } catch (error) {
+            registerSubmit.disabled = false;
+            showMessage("register-message", error.message, "error");
+        }
+    });
+
+    // Open the register form when clicked.
+    document.getElementById("show-register").addEventListener("click", () => setAuthMode("register"));
+    // Open the login form when clicked.
+    document.getElementById("show-login").addEventListener("click", () => setAuthMode("login"));
 });

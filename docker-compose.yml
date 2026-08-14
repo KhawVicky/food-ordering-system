@@ -1,6 +1,6 @@
 services:
   kafka:
-    image: apache/kafka:4.1.2
+    image: apache/kafka:4.0.0
     container_name: food-ordering-kafka
     ports:
       - "9092:9092"
@@ -18,14 +18,17 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      # Disable the image CDS archive because it fails with the bundled JDK.
+      KAFKA_JVM_PERFORMANCE_OPTS: "-Xshare:off"
+      # Disable JMX because the image cannot start its management agent.
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote=false"
 
   kafka-ui:
-    image: provectuslabs/kafka-ui:latest
+    image: redpandadata/console:v2.8.6
     container_name: food-ordering-kafka-ui
     ports:
       - "8085:8080"
     environment:
-      KAFKA_CLUSTERS_0_NAME: food-ordering-kafka
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_BROKERS: kafka:29092
     depends_on:
       - kafka

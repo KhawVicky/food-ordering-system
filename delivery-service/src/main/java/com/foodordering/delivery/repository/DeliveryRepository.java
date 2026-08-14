@@ -8,9 +8,12 @@ import java.util.Optional;
 
 public interface DeliveryRepository extends JpaRepository<Delivery, String> {
 
+    // Find a delivery by order ID.
     Optional<Delivery> findByOrderId(Long orderId);
 
+    // Check if a delivery exists for an order.
     boolean existsByOrderId(Long orderId);
 
+    // Find all deliveries from newest to oldest.
     List<Delivery> findAllByOrderByCreatedAtDesc();
 }

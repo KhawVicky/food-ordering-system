@@ -23,30 +23,36 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    // Create the order controller.
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
+    // Create a new food order.
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request));
     }
 
+    // Get all orders.
     @GetMapping
     public List<OrderResponse> getAllOrders() {
         return orderService.getAllOrders();
     }
 
+    // Get one order by ID.
     @GetMapping("/{orderId}")
     public OrderResponse getOrderById(@PathVariable Long orderId) {
         return orderService.getOrderById(orderId);
     }
 
+    // Get orders for one customer.
     @GetMapping("/customer/{customerId}")
     public List<OrderResponse> getOrdersByCustomer(@PathVariable Long customerId) {
         return orderService.getOrdersByCustomer(customerId);
     }
 
+    // Change the status of an order.
     @PutMapping("/{orderId}/status")
     public OrderResponse updateOrderStatus(
             @PathVariable Long orderId,

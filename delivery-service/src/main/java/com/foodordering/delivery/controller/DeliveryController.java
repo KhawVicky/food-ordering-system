@@ -20,25 +20,30 @@ public class DeliveryController {
 
     private final DeliveryService deliveryService;
 
+    // Create the delivery controller.
     public DeliveryController(DeliveryService deliveryService) {
         this.deliveryService = deliveryService;
     }
 
+    // Get all deliveries.
     @GetMapping
     public List<DeliveryResponse> getAllDeliveries() {
         return deliveryService.getAllDeliveries();
     }
 
+    // Get one delivery by ID.
     @GetMapping("/{deliveryId}")
     public DeliveryResponse getDeliveryById(@PathVariable String deliveryId) {
         return deliveryService.getDeliveryById(deliveryId);
     }
 
+    // Get a delivery by order ID.
     @GetMapping("/order/{orderId}")
     public DeliveryResponse getDeliveryByOrderId(@PathVariable Long orderId) {
         return deliveryService.getDeliveryByOrderId(orderId);
     }
 
+    // Assign a rider to a delivery.
     @PutMapping("/{deliveryId}/assign-rider")
     public DeliveryResponse assignRider(
             @PathVariable String deliveryId,
@@ -46,6 +51,7 @@ public class DeliveryController {
         return deliveryService.assignRider(deliveryId, request);
     }
 
+    // Change the delivery status.
     @PutMapping("/{deliveryId}/status")
     public DeliveryResponse updateDeliveryStatus(
             @PathVariable String deliveryId,

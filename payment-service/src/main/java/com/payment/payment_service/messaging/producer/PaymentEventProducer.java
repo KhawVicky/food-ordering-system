@@ -10,10 +10,12 @@ public class PaymentEventProducer {
 
     private final KafkaTemplate<String, PaymentCompletedEvent> kafkaTemplate;
 
+    // Create the payment event producer.
     public PaymentEventProducer(KafkaTemplate<String, PaymentCompletedEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
+    // Send a completed payment event to Kafka.
     public void publish(PaymentCompletedEvent event) {
         kafkaTemplate.send(
                 KafkaTopicConfig.PAYMENT_COMPLETED_TOPIC,

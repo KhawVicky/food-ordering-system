@@ -32,11 +32,13 @@ class DeliveryServiceUnitTest {
 
     private DeliveryService deliveryService;
 
+    // Create the service before each test.
     @BeforeEach
     void setUp() {
         deliveryService = new DeliveryService(deliveryRepository);
     }
 
+    // Test that one payment creates one delivery.
     @Test
     void completedPaymentCreatesOnlyOneDelivery() {
         PaymentCompletedEvent event = event();
@@ -56,6 +58,7 @@ class DeliveryServiceUnitTest {
         verify(deliveryRepository).save(any(Delivery.class));
     }
 
+    // Test rider assignment and delivery completion.
     @Test
     void riderCanBeAssignedAndDeliveryCanBeCompleted() {
         Delivery delivery = savedDelivery();
@@ -78,6 +81,7 @@ class DeliveryServiceUnitTest {
         assertNotNull(delivery.getDeliveredAt());
     }
 
+    // Test that pickup needs a rider.
     @Test
     void pickedUpBeforeRiderAssignmentIsRejected() {
         Delivery delivery = savedDelivery();
@@ -89,6 +93,7 @@ class DeliveryServiceUnitTest {
                 () -> deliveryService.updateDeliveryStatus("delivery-11", request));
     }
 
+    // Test that delivery needs pickup first.
     @Test
     void deliveredBeforePickedUpIsRejected() {
         Delivery delivery = savedDelivery();
@@ -101,11 +106,13 @@ class DeliveryServiceUnitTest {
                 () -> deliveryService.updateDeliveryStatus("delivery-11", request));
     }
 
+    // Build a sample payment event.
     private PaymentCompletedEvent event() {
         return new PaymentCompletedEvent(
                 "payment-11", 11L, 1L, new BigDecimal("20.00"), "COMPLETED", "Penang", null);
     }
 
+    // Build a sample delivery.
     private Delivery savedDelivery() {
         Delivery delivery = new Delivery("payment-11", 11L, 1L, "Penang");
         delivery.setDeliveryId("delivery-11");

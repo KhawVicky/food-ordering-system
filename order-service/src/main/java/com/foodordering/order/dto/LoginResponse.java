@@ -10,9 +10,11 @@ public class LoginResponse {
     private String email;
     private UserRole role;
 
+    // Create an empty login response.
     public LoginResponse() {
     }
 
+    // Build a response from a user.
     public static LoginResponse fromEntity(User user) {
         LoginResponse response = new LoginResponse();
         response.userId = user.getUserId();
@@ -22,18 +24,22 @@ public class LoginResponse {
         return response;
     }
 
+    // Get the user ID.
     public Long getUserId() {
         return userId;
     }
 
+    // Get the user name.
     public String getName() {
         return name;
     }
 
+    // Get the email.
     public String getEmail() {
         return email;
     }
 
+    // Get the user role.
     public UserRole getRole() {
         return role;
     }

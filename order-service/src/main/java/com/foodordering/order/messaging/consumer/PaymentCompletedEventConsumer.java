@@ -10,10 +10,12 @@ public class PaymentCompletedEventConsumer {
 
     private final OrderService orderService;
 
+    // Create the payment event consumer.
     public PaymentCompletedEventConsumer(OrderService orderService) {
         this.orderService = orderService;
     }
 
+    // Receive a completed payment event.
     @KafkaListener(
             topics = "payment-completed-topic",
             groupId = "order-service-payment-group"

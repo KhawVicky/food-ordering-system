@@ -6,6 +6,7 @@ package com.payment.payment_service.messaging.event;
  */
 public class OrderCreatedEvent extends com.payment.payment_service.dto.OrderCreatedEvent {
 
+    // Create an empty order event.
     public OrderCreatedEvent() {
         super();
     }

@@ -8,9 +8,12 @@ import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, String> {
 
+    // Find a payment by order ID.
     Optional<Payment> findByOrderId(Long orderId);
 
+    // Check if a payment exists for an order.
     boolean existsByOrderId(Long orderId);
 
+    // Find all payments from newest to oldest.
     List<Payment> findAllByOrderByCreatedAtDesc();
 }
